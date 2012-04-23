@@ -2,44 +2,48 @@ import pygame, sys
 from pygame.locals import *
 
 class Entity():
-        def __init__(self):
-                self.mX,self.mY = 0,0
-                self.color = pygame.Color(200,240,60)
-                self.setDisplay()
-                self.addGroup()
-                self.addSprites()
-                
-        
-        def setDisplay(self):
-                self.window = pygame.display.set_mode((400,400),0,32)
-                self.playArea = pygame.display.get_surface()
-                pygame.display.set_caption("Entity")
-                pygame.mouse.set_visible(0)
+		wW, wH = 450, 450
 
-        def addSprites(self):
-                self.player = Player((self.mX,self.mY))
-                self.allSprites.add(self.player)
+		def __init__(self):
+				self.mX,self.mY = 0,0
+				self.color = pygame.Color(50,100,150)
+				
+				self.setDisplay()
+				self.addGroup()
+				self.addSprites()
+				
+		def setDisplay(self):
+				self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
+				self.playArea = pygame.display.get_surface()
+				pygame.display.set_caption("Entity")
+				pygame.mouse.set_visible(0)
 
-        def addGroup(self):
-                self.allSprites = pygame.sprite.Group()
+		def addSprites(self):
+				self.player = Player((self.mX,self.mY))
+				self.allSprites.add(self.player)
+				self.enemy = Enemy((100,100))
+				self.allSprites.add(self.enemy)
 
-        def main(self):
-                while 1:
-                        self.playArea.fill(self.color)
-                        self.player.move(self.mX,self.mY)
-                        self.allSprites.update()
-                        self.allSprites.draw(self.playArea)
+		def addGroup(self):
+				self.allSprites = pygame.sprite.Group()
 
-                        for event in pygame.event.get():
-                                if event.type == QUIT:
-                                        pygame.quit()
-                                        sys.exit()
-                                elif event.type == MOUSEMOTION:
-                                        self.mX,self.mY = event.pos
-                                        
-                        pygame.display.update()
+		def main(self):
+				while 1:
+						self.playArea.fill(self.color)
+						self.player.move(self.mX,self.mY)
+						self.allSprites.update()
+						self.allSprites.draw(self.playArea)
 
-class EnemyObject(pygame.sprite.Sprite):
+						for event in pygame.event.get():
+								if event.type == QUIT:
+										pygame.quit()
+										sys.exit()
+								elif event.type == MOUSEMOTION:
+										self.mX,self.mY = event.pos
+										
+						pygame.display.update()
+
+class Enemy(pygame.sprite.Sprite):
 		def __init__(self, location):
 			"""
 			location :: (int, int) - location to be placed in px
@@ -50,9 +54,20 @@ class EnemyObject(pygame.sprite.Sprite):
 			
 			self.position = location
 			self.rect.center = location
+			self.dir = 1
+			
+		def checkEdge(self):
+			if self.position[0] >= Entity.wW:
+				self.dir = -1
+			elif self.position[0] <= 0:
+				self.dir = 1
+			
+		def move(self):
+			self.checkEdge()
+			self.position = (self.position[0]+self.dir, self.position[1])
 			
 		def update(self):
-			self.position = (self.position[0]+1, self.position[1])
+			self.move()
 			self.rect.center = self.position
 						
 class Player(pygame.sprite.Sprite):
