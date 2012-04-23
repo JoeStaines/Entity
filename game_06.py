@@ -1,6 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 
+"""
 def main():
     pygame.init()
     window = pygame.display.set_mode((400,400),0,32)
@@ -24,8 +25,20 @@ def main():
             elif event.type == MOUSEMOTION:
                 mx,my = event.pos
         pygame.display.update()
-        
-
     
+"""    
+
+
+def main():
+	#some shit
+	pygame.init()
+	
+
+class player(pygame.sprite.Sprite):
+	def __init__(self,setIniLoc):
+		
+
+
+
 main()
         
