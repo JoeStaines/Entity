@@ -1,4 +1,4 @@
-import pygame, sys, math, random
+import pygame, sys, math
 from pygame.locals import *
 
 
@@ -41,6 +41,7 @@ class Entity():
                                         self.checkCollide()
                                         print "HEALTH",self.player.health
                                         print "COLLIDE?",self.bVal
+
                                         for event in pygame.event.get():
                                                         if event.type == QUIT:
                                                                         pygame.quit()
@@ -81,7 +82,7 @@ class Enemy(pygame.sprite.Sprite):
                 
                 def update(self):
                         self.rect = self.move()
-                        #self.rect.center = self.position
+                        self.rect.center = self.position
                                                 
 class Player(pygame.sprite.Sprite):
         
