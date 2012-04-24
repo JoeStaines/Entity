@@ -1,5 +1,6 @@
-import pygame, sys
+import pygame, sys, math
 from pygame.locals import *
+
 
 class Entity():
 		wW, wH = 450, 450
@@ -63,12 +64,13 @@ class Enemy(pygame.sprite.Sprite):
 				self.dir = 1
 			
 		def move(self):
-			self.checkEdge()
-			self.position = (self.position[0]+self.dir, self.position[1])
+			(dx, dy) = (math.cos(0.2)*10, math.sin(0.2)*10)
+			print (dx, dy)
+			return self.rect.move(dx, dy)
 			
 		def update(self):
-			self.move()
-			self.rect.center = self.position
+			self.rect = self.move()
+			#self.rect.center = self.position
 						
 class Player(pygame.sprite.Sprite):
         def __init__(self,location):
