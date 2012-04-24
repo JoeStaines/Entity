@@ -22,13 +22,14 @@ class Entity():
 
 		def degreesToRadians(self, degrees):
 			return degrees * (math.pi / 180)
-				
+						
+		
 		def addSprites(self):
 				self.player = Player((self.mX,self.mY))
 				self.allPlayer.add(self.player)
 				
 				#Enemy((position), (vector))
-				self.enemy = Enemy((100,100), (self.degreesToRadians(360), 10) )
+				self.enemy = Enemy((100,100), (self.degreesToRadians(random.randrange(0, 359)), 10) )
 				self.allEnemy.add(self.enemy)
 
 		def addGroup(self):
