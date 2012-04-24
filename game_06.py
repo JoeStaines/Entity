@@ -3,87 +3,119 @@ from pygame.locals import *
 
 
 class Entity():
-        wW,wH = 450,450
-        def __init__(self):
-                        self.mX,self.mY = 0,0
-                        self.color = pygame.Color(50,100,150)
-                        self.setDisplay()
-                        self.addGroup()
-                        self.addSprites()
-                        
-        def setDisplay(self):
-                        self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
-                        self.playArea = pygame.display.get_surface()
-                        pygame.display.set_caption("Entity")
-                        pygame.mouse.set_visible(0)
+		wW,wH = 450,450
+		def __init__(self):
+				self.mX,self.mY = 0,0
+				self.color = pygame.Color(50,100,150)
+				self.enemyUpdateTime = 0
+				self.fps = pygame.time.Clock()
+				
+				self.setDisplay()
+				self.addGroup()
+				self.addSprites()
+				
+		def setDisplay(self):
+				self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
+				self.playArea = pygame.display.get_surface()
+				pygame.display.set_caption("Entity")
+				pygame.mouse.set_visible(0)
 
-        def addSprites(self):
-                        self.player = Player((self.mX,self.mY))
-                        self.allSprites.add(self.player)
-                        self.enemy = Enemy((100,100))
-                        self.allSprites.add(self.enemy)
+		def degreesToRadians(self, degrees):
+			return degrees * (math.pi / 180)
+				
+		def addSprites(self):
+				self.player = Player((self.mX,self.mY))
+				self.allPlayer.add(self.player)
+				
+				#Enemy((position), (vector))
+				self.enemy = Enemy((100,100), (self.degreesToRadians(360), 10) )
+				self.allEnemy.add(self.enemy)
 
-        def addGroup(self):
-                        self.allSprites = pygame.sprite.Group()
-
-        def checkCollide(self):
+		def addGroup(self):
+				self.allPlayer = pygame.sprite.Group()
+				self.allEnemy = pygame.sprite.Group()
+                def checkCollide(self):
                         self.bVal = pygame.sprite.collide_rect(self.player,self.enemy)
                         if(self.bVal == 1):
                                 self.player.health-=1
                                 #or any other action
 
-        def main(self):
-                        while 1:
-                                        self.playArea.fill(self.color)
-                                        self.player.move(self.mX,self.mY)
-                                        self.allSprites.update()
-                                        self.allSprites.draw(self.playArea)
-                                        self.checkCollide()
-                                        print "HEALTH",self.player.health
-                                        print "COLLIDE?",self.bVal
-                                        for event in pygame.event.get():
-                                                        if event.type == QUIT:
-                                                                        pygame.quit()
-                                                                        sys.exit()
-                                                        elif event.type == MOUSEMOTION:
-                                                                        self.mX,self.mY = event.pos
-                                                                        
-                                        pygame.display.update()
+		def main(self):
+				while 1:
+						self.playArea.fill(self.color)
+						self.player.move(self.mX,self.mY)
+						self.allPlayer.update()
+						self.allEnemy.update()
+						
+						self.allPlayer.draw(self.playArea)
+						self.allEnemy.draw(self.playArea)
+						
+						for event in pygame.event.get():
+										if event.type == QUIT:
+														pygame.quit()
+														sys.exit()
+										elif event.type == MOUSEMOTION:
+														self.mX,self.mY = event.pos
+														
+						pygame.display.update()
+						self.fps.tick(60)
+
 
 class Enemy(pygame.sprite.Sprite):
-                def __init__(self, location):
-                        """
-                        location :: (int, int) - location to be placed in px
-                        """
-                        pygame.sprite.Sprite.__init__(self)
-                        self.image = pygame.image.load("enemy.png")
-                        self.rect = self.image.get_rect()
-                        
-                        self.position = location
-                        self.rect.center = location
-                        self.dir = 1
-                        
-                def checkEdge(self):
-                        if self.position[0] >= Entity.wW:
-                                self.dir = -1
-                        elif self.position[0] <= 0:
-                                self.dir = 1
-                        
-                def move(self):
-                        (dx, dy) = (self.myRound(math.cos(0.4)*1), self.myRound(math.sin(0.4)*1))
-                        return self.rect.move(dx,dy)
+		def __init__(self, location, vector):
+			"""
+			location :: (int, int) - location to be placed in px
+			vector :: (int, int) - angle and speed
+			"""
+			pygame.sprite.Sprite.__init__(self)
+			self.image = pygame.image.load("enemy.png")
+			self.rect = self.image.get_rect()
+			
+			self.vector = vector
+			self.velx = 0
+			self.vely = 0
+			
+			self.position = location
+			self.rect.center = location
+			self.dir = 1
+			
+			self.calcAngle(self.vector)
 
-                def myRound(self, dVal):
-                        frac,whole = math.modf(dVal)
-                        if(frac>=0.5):
-                                whole+=1
-                        return whole
-                
-                def update(self):
-                        self.rect = self.move()
-                        #self.rect.center = self.position
-                                                
+			#calc angle only once on create
+		def calcAngle(self, vector):
+			angle, speed = vector
+			(self.velx, self.vely) = (self.myRound(math.cos(angle)*speed), self.myRound(math.sin(angle)*speed))
+			
+		def myRound(self, dVal):
+			frac,whole = math.modf(dVal)
+			if(frac>=0.5):
+				whole+=1
+			return whole
+		
+		def checkEdge(self):
+			if self.rect.top <= 0 or self.rect.bottom >= Entity.wH:
+				self.bounce('y')
+			elif self.rect.left <= 0 or self.rect.right >= Entity.wH:
+				self.bounce('x')
+		
+		def bounce(self, axis):
+			if axis == 'x':
+				self.velx *= -1
+			elif axis == 'y':
+				self.vely *= -1
+			else:
+				print "Error bouncing"
+		
+		def update(self):
+			self.checkEdge()
+			print self.vely, self.rect.top
+			self.rect = self.rect.move(self.velx, self.vely)
+			
+			#self.rect = self.move(self.vector)
+			#self.rect.center = self.position
+			
 class Player(pygame.sprite.Sprite):
+
         
         def __init__(self,location):
                 pygame.sprite.Sprite.__init__(self)
@@ -93,11 +125,14 @@ class Player(pygame.sprite.Sprite):
                 self.position = location
                 self.health = 100
 
-        def update(self):
-                self.rect.center = self.position
 
-        def move(self,mX,mY):
-                self.position = (mX,mY)                
-                
+
+
+	def update(self):
+								self.rect.center = self.position
+
+	def move(self,mX,mY):
+								self.position = (mX,mY)                
+								
 if __name__ == "__main__":
-        Entity().main()
+				Entity().main()
