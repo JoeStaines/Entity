@@ -3,12 +3,12 @@ from pygame.locals import *
 
 
 class Entity():
-		wW, wH = 450, 450
-
+		wW,wH = 450,450
 		def __init__(self):
 				self.mX,self.mY = 0,0
 				self.color = pygame.Color(50,100,150)
 				self.enemyUpdateTime = 0
+				self.fps = pygame.time.Clock()
 				
 				self.setDisplay()
 				self.addGroup()
@@ -28,7 +28,7 @@ class Entity():
 				self.allPlayer.add(self.player)
 				
 				#Enemy((position), (vector))
-				self.enemy = Enemy((100,100), (self.degreesToRadians(200), 10) )
+				self.enemy = Enemy((100,100), (self.degreesToRadians(360), 10) )
 				self.allEnemy.add(self.enemy)
 
 		def addGroup(self):
@@ -40,24 +40,20 @@ class Entity():
 						self.playArea.fill(self.color)
 						self.player.move(self.mX,self.mY)
 						self.allPlayer.update()
-						
-						if (self.enemyUpdateTime >=50):
-							self.allEnemy.update()
-							self.enemyUpdateTime = 0
-						else:
-							self.enemyUpdateTime += 1
+						self.allEnemy.update()
 						
 						self.allPlayer.draw(self.playArea)
 						self.allEnemy.draw(self.playArea)
-
+						
 						for event in pygame.event.get():
-								if event.type == QUIT:
-										pygame.quit()
-										sys.exit()
-								elif event.type == MOUSEMOTION:
-										self.mX,self.mY = event.pos
-										
+										if event.type == QUIT:
+														pygame.quit()
+														sys.exit()
+										elif event.type == MOUSEMOTION:
+														self.mX,self.mY = event.pos
+														
 						pygame.display.update()
+						self.fps.tick(60)
 
 class Enemy(pygame.sprite.Sprite):
 		def __init__(self, location, vector):
@@ -70,41 +66,62 @@ class Enemy(pygame.sprite.Sprite):
 			self.rect = self.image.get_rect()
 			
 			self.vector = vector
+			self.velx = 0
+			self.vely = 0
+			
 			self.position = location
 			self.rect.center = location
 			self.dir = 1
 			
-		def checkEdge(self):
-			if self.position[0] >= Entity.wW:
-				self.dir = -1
-			elif self.position[0] <= 0:
-				self.dir = 1
-			
-		def move(self, vector):
+			self.calcAngle(self.vector)
+
+			#calc angle only once on create
+		def calcAngle(self, vector):
 			angle, speed = vector
-			(dx, dy) = (math.cos(angle)*speed, math.sin(angle)*speed)
-			print (dx, dy)
-			return self.rect.move(dx, dy)
+			(self.velx, self.vely) = (self.myRound(math.cos(angle)*speed), self.myRound(math.sin(angle)*speed))
 			
+		def myRound(self, dVal):
+			frac,whole = math.modf(dVal)
+			if(frac>=0.5):
+				whole+=1
+			return whole
+		
+		def checkEdge(self):
+			if self.rect.top <= 0 or self.rect.bottom >= Entity.wH:
+				self.bounce('y')
+			elif self.rect.left <= 0 or self.rect.right >= Entity.wH:
+				self.bounce('x')
+		
+		def bounce(self, axis):
+			if axis == 'x':
+				self.velx *= -1
+			elif axis == 'y':
+				self.vely *= -1
+			else:
+				print "Error bouncing"
+		
 		def update(self):
-			self.rect = self.move(self.vector)
+			self.checkEdge()
+			print self.vely, self.rect.top
+			self.rect = self.rect.move(self.velx, self.vely)
+			
+			#self.rect = self.move(self.vector)
 			#self.rect.center = self.position
-						
+			
 class Player(pygame.sprite.Sprite):
-        def __init__(self,location):
-                pygame.sprite.Sprite.__init__(self)
-                self.image = pygame.image.load("sprite.png")
-                self.rect = self.image.get_rect()
-                self.rect.center = location
-                self.position = location
-                #set sprite to mouse position
 
-        def update(self):
-                self.rect.center = self.position
+				def __init__(self,location):
+								pygame.sprite.Sprite.__init__(self)
+								self.image = pygame.image.load("sprite.png").convert_alpha()
+								self.rect = self.image.get_rect()
+								self.rect.center = location
+								self.position = location
 
-                
-        def move(self,mX,mY):
-                self.position = (mX,mY)                
-                
+				def update(self):
+								self.rect.center = self.position
+
+				def move(self,mX,mY):
+								self.position = (mX,mY)                
+								
 if __name__ == "__main__":
-        Entity().main()
+				Entity().main()
