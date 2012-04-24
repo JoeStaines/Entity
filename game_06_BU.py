@@ -2,19 +2,16 @@ import pygame, sys
 from pygame.locals import *
 
 class Entity():
-        wW,wH = 450,450
-        #class variables end
         def __init__(self):
                 self.mX,self.mY = 0,0
-                self.color = pygame.Color(50,100,150)
-                #variable declaration end
-
+                self.color = pygame.Color(200,240,60)
                 self.setDisplay()
                 self.addGroup()
                 self.addSprites()
                 
+        
         def setDisplay(self):
-                self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
+                self.window = pygame.display.set_mode((400,400),0,32)
                 self.playArea = pygame.display.get_surface()
                 pygame.display.set_caption("Entity")
                 pygame.mouse.set_visible(0)
@@ -42,19 +39,19 @@ class Entity():
                                         
                         pygame.display.update()
 
-
 class Player(pygame.sprite.Sprite):
-
         def __init__(self,location):
                 pygame.sprite.Sprite.__init__(self)
-                self.image = pygame.image.load("sprite.png").convert_alpha()
+                self.image = pygame.image.load("sprite.png")
                 self.rect = self.image.get_rect()
                 self.rect.center = location
                 self.position = location
+                #set sprite to mouse position
 
         def update(self):
                 self.rect.center = self.position
 
+                
         def move(self,mX,mY):
                 self.position = (mX,mY)                
                 

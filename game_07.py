@@ -21,6 +21,7 @@ class Entity():
 
         def addSprites(self):
                 self.player = Player((self.mX,self.mY))
+                self.t = t()
                 self.allSprites.add(self.player)
 
         def addGroup(self):
@@ -32,6 +33,7 @@ class Entity():
                         self.player.move(self.mX,self.mY)
                         self.allSprites.update()
                         self.allSprites.draw(self.playArea)
+                        playArea.blit()
 
                         for event in pygame.event.get():
                                 if event.type == QUIT:
@@ -44,7 +46,7 @@ class Entity():
 
 
 class Player(pygame.sprite.Sprite):
-
+        
         def __init__(self,location):
                 pygame.sprite.Sprite.__init__(self)
                 self.image = pygame.image.load("sprite.png").convert_alpha()
@@ -56,7 +58,14 @@ class Player(pygame.sprite.Sprite):
                 self.rect.center = self.position
 
         def move(self,mX,mY):
-                self.position = (mX,mY)                
+                self.position = (mX,mY)
+
+class t(pygame.sprite.Sprite):
+
+        def __init__(self):
+                font = pygame.font.Font(None,25)
+                text = font.render("hi",1,(10,10,10))
+                tpos = text.get_rect(centerx = background.get_width()/2)
                 
 if __name__ == "__main__":
         Entity().main()
