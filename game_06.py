@@ -8,6 +8,7 @@ class Entity():
 		def __init__(self):
 				self.mX,self.mY = 0,0
 				self.color = pygame.Color(50,100,150)
+				self.enemyUpdateTime = 0
 				
 				self.setDisplay()
 				self.addGroup()
@@ -24,21 +25,30 @@ class Entity():
 				
 		def addSprites(self):
 				self.player = Player((self.mX,self.mY))
-				self.allSprites.add(self.player)
+				self.allPlayer.add(self.player)
 				
 				#Enemy((position), (vector))
-				self.enemy = Enemy((100,100), (self.degreesToRadians(45), 10) )
-				self.allSprites.add(self.enemy)
+				self.enemy = Enemy((100,100), (self.degreesToRadians(200), 10) )
+				self.allEnemy.add(self.enemy)
 
 		def addGroup(self):
-				self.allSprites = pygame.sprite.Group()
+				self.allPlayer = pygame.sprite.Group()
+				self.allEnemy = pygame.sprite.Group()
 
 		def main(self):
 				while 1:
 						self.playArea.fill(self.color)
 						self.player.move(self.mX,self.mY)
-						self.allSprites.update()
-						self.allSprites.draw(self.playArea)
+						self.allPlayer.update()
+						
+						if (self.enemyUpdateTime >=50):
+							self.allEnemy.update()
+							self.enemyUpdateTime = 0
+						else:
+							self.enemyUpdateTime += 1
+						
+						self.allPlayer.draw(self.playArea)
+						self.allEnemy.draw(self.playArea)
 
 						for event in pygame.event.get():
 								if event.type == QUIT:
@@ -53,6 +63,7 @@ class Enemy(pygame.sprite.Sprite):
 		def __init__(self, location, vector):
 			"""
 			location :: (int, int) - location to be placed in px
+			vector :: (int, int) - angle and speed
 			"""
 			pygame.sprite.Sprite.__init__(self)
 			self.image = pygame.image.load("enemy.png")
