@@ -23,13 +23,25 @@ class Entity():
 		def degreesToRadians(self, degrees):
 			return degrees * (math.pi / 180)
 						
+		def randDegrees(self):
+			deadzones = range(0,6)
+			deadzones += range(85,96)
+			deadzones += range(175,186)
+			deadzones += range(265,276)
+			deadzones += range(355,360)
+			rand = 0
+			
+			while (rand in deadzones):
+				rand = random.randrange(0,359)
+			
+			return rand
 		
 		def addSprites(self):
 				self.player = Player((self.mX,self.mY))
 				self.allPlayer.add(self.player)
 				
 				#Enemy((position), (vector))
-				self.enemy = Enemy((100,100), (self.degreesToRadians(random.randrange(0, 359)), 10) )
+				self.enemy = Enemy((100,100), (self.degreesToRadians(self.randDegrees()), 10) )
 				self.allEnemy.add(self.enemy)
 
 		def addGroup(self):
@@ -103,7 +115,6 @@ class Enemy(pygame.sprite.Sprite):
 		
 		def update(self):
 			self.checkEdge()
-			print self.vely, self.rect.top
 			self.rect = self.rect.move(self.velx, self.vely)
 			
 			#self.rect = self.move(self.vector)
