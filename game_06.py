@@ -19,10 +19,15 @@ class Entity():
 				pygame.display.set_caption("Entity")
 				pygame.mouse.set_visible(0)
 
+		def degreesToRadians(self, degrees):
+			return degrees * (math.pi / 180)
+				
 		def addSprites(self):
 				self.player = Player((self.mX,self.mY))
 				self.allSprites.add(self.player)
-				self.enemy = Enemy((100,100))
+				
+				#Enemy((position), (vector))
+				self.enemy = Enemy((100,100), (self.degreesToRadians(45), 10) )
 				self.allSprites.add(self.enemy)
 
 		def addGroup(self):
@@ -45,7 +50,7 @@ class Entity():
 						pygame.display.update()
 
 class Enemy(pygame.sprite.Sprite):
-		def __init__(self, location):
+		def __init__(self, location, vector):
 			"""
 			location :: (int, int) - location to be placed in px
 			"""
@@ -53,6 +58,7 @@ class Enemy(pygame.sprite.Sprite):
 			self.image = pygame.image.load("enemy.png")
 			self.rect = self.image.get_rect()
 			
+			self.vector = vector
 			self.position = location
 			self.rect.center = location
 			self.dir = 1
@@ -63,13 +69,14 @@ class Enemy(pygame.sprite.Sprite):
 			elif self.position[0] <= 0:
 				self.dir = 1
 			
-		def move(self):
-			(dx, dy) = (math.cos(0.2)*10, math.sin(0.2)*10)
+		def move(self, vector):
+			angle, speed = vector
+			(dx, dy) = (math.cos(angle)*speed, math.sin(angle)*speed)
 			print (dx, dy)
 			return self.rect.move(dx, dy)
 			
 		def update(self):
-			self.rect = self.move()
+			self.rect = self.move(self.vector)
 			#self.rect.center = self.position
 						
 class Player(pygame.sprite.Sprite):
