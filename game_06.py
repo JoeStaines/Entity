@@ -10,7 +10,6 @@ class Entity():
                                 self.fps = pygame.time.Clock()
                                 self.setDisplay()
                                 self.addGroup()
-                                
 
                 def gameInit(self):
                             self.mX,self.mY = 0,0
@@ -18,12 +17,12 @@ class Entity():
                             self.bVal = False
                             self.oTime = pygame.time.get_ticks()
                             self.seconds = 0
+                            pygame.mouse.set_visible(0)
                                 
                 def setDisplay(self):
                                 self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
                                 self.playArea = pygame.display.get_surface()
                                 pygame.display.set_caption("Entity")
-                                pygame.mouse.set_visible(0)
 
                 def degreesToRadians(self, degrees):
                         return degrees * (math.pi / 180)
@@ -67,6 +66,7 @@ class Entity():
 
 
                 def addGroup(self):
+                                self.mainMenuObj = pygame.sprite.Group()
                                 self.allPlayer = pygame.sprite.Group()
                                 self.allEnemy = pygame.sprite.Group()
 
@@ -77,21 +77,40 @@ class Entity():
                         self.seconds += 1
                         print "SECONDS: ",self.seconds
 
+                def addMenuObj(self):
+                    self.playButton = Button("playbutton.jpg")
+                    self.mainMenuObj.add(self.playButton)
+                    
+                    self.exitButton = Button("exitbutton.jpg")
+                    self.mainMenuObj.add(self.exitButton)
+                    
+                    halfwidth = Entity.wW/2
+                    halfheight = Entity.wH/2
+                    self.playButton.rect.center = (halfwidth, halfheight)
+                    self.exitButton.rect.center = (halfwidth, halfheight+100)
+                                                
                 def startGame(self):
+                    self.addMenuObj()
+                    
                     while 1:
                         bkgr = pygame.image.load('bkgr.jpg')
                         bkgrRect = bkgr.get_rect()
                         self.playArea.blit(bkgr,bkgrRect)
+                        self.mainMenuObj.draw(self.playArea)
 
                         for event in pygame.event.get():
                             if event.type == QUIT:
                                 pygame.quit()
                                 sys.exit()
                             elif event.type == pygame.MOUSEBUTTONDOWN:
-                                b1,b2,b3= pygame.mouse.get_pressed()
-                                if (b1 == True):
+                                if event.button == 1:
                                     #countdown to game start
-                                    self.main()
+                                    #self.main()
+                                    if (self.playButton.clicked(event.pos) == 1):
+                                        self.main()
+                                    elif (self.exitButton.clicked(event.pos) == 1):
+                                        pygame.quit()
+                                        sys.exit()
 
                         pygame.display.update()
 
@@ -206,6 +225,17 @@ class Player(pygame.sprite.Sprite):
 
         def move(self,mX,mY):
                                                                 self.position = (mX,mY)                
-                                                                
+
+class Button(pygame.sprite.Sprite):
+
+    def __init__(self, src):
+      pygame.sprite.Sprite.__init__(self)
+      self.image = pygame.image.load(src).convert()
+      self.rect = self.image.get_rect()
+
+    def clicked(self,pos):
+        if (self.rect.left < pos[0] < self.rect.right) and (self.rect.top < pos[1] < self.rect.bottom):
+            return 1
+      
 if __name__ == "__main__":
                                 Entity().startGame()
