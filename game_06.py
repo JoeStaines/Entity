@@ -13,6 +13,7 @@ class Entity():
 				self.setDisplay()
 				self.addGroup()
 				self.addSprites()
+				self.bVal = False
 				
 		def setDisplay(self):
 				self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
@@ -22,31 +23,32 @@ class Entity():
 
 		def degreesToRadians(self, degrees):
 			return degrees * (math.pi / 180)
-						
-		
+			
+		def checkCollide(self):
+				self.bVal = pygame.sprite.spritecollideany(self.player,self.allEnemy)
+				if(self.bVal != None):
+						    self.player.health -= 1
+						    #print "Collision Detected, Health: ",self.player.health
+				
 		def addSprites(self):
 				self.player = Player((self.mX,self.mY))
 				self.allPlayer.add(self.player)
 				
-				#Enemy((position), (vector))
-				self.enemy = Enemy((100,100), (self.degreesToRadians(random.randrange(0, 359)), 10) )
-				self.allEnemy.add(self.enemy)
-
+				for x in range (0,30):
+					self.enemy = Enemy((100,100), (self.degreesToRadians(random.randrange(0, 359)), random.randrange(5,15))) 
+					self.allEnemy.add(self.enemy)
+								
 		def addGroup(self):
 				self.allPlayer = pygame.sprite.Group()
 				self.allEnemy = pygame.sprite.Group()
-                def checkCollide(self):
-                        self.bVal = pygame.sprite.collide_rect(self.player,self.enemy)
-                        if(self.bVal == 1):
-                                self.player.health-=1
-                                #or any other action
-
+			
 		def main(self):
 				while 1:
 						self.playArea.fill(self.color)
 						self.player.move(self.mX,self.mY)
 						self.allPlayer.update()
 						self.allEnemy.update()
+						self.checkCollide()
 						
 						self.allPlayer.draw(self.playArea)
 						self.allEnemy.draw(self.playArea)
@@ -59,7 +61,7 @@ class Entity():
 														self.mX,self.mY = event.pos
 														
 						pygame.display.update()
-						self.fps.tick(60)
+						self.fps.tick(60)                               
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -83,6 +85,7 @@ class Enemy(pygame.sprite.Sprite):
 			self.calcAngle(self.vector)
 
 			#calc angle only once on create
+			
 		def calcAngle(self, vector):
 			angle, speed = vector
 			(self.velx, self.vely) = (self.myRound(math.cos(angle)*speed), self.myRound(math.sin(angle)*speed))
@@ -109,24 +112,21 @@ class Enemy(pygame.sprite.Sprite):
 		
 		def update(self):
 			self.checkEdge()
-			print self.vely, self.rect.top
+			#print self.vely, self.rect.top
 			self.rect = self.rect.move(self.velx, self.vely)
-			
 			#self.rect = self.move(self.vector)
 			#self.rect.center = self.position
 			
 class Player(pygame.sprite.Sprite):
 
-        
-        def __init__(self,location):
-                pygame.sprite.Sprite.__init__(self)
-                self.image = pygame.image.load("sprite.png").convert_alpha()
-                self.rect = self.image.get_rect()
-                self.rect.center = location
-                self.position = location
-                self.health = 100
-
-
+	
+	def __init__(self,location):
+			pygame.sprite.Sprite.__init__(self)
+			self.image = pygame.image.load("sprite.png").convert_alpha()
+			self.rect = self.image.get_rect()
+			self.rect.center = location
+			self.position = location
+			self.health = 20
 
 
 	def update(self):
