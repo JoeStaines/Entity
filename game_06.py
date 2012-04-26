@@ -23,7 +23,7 @@ class Entity():
                                 self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
                                 self.playArea = pygame.display.get_surface()
                                 pygame.display.set_caption("Entity")
-                                pygame.mouse.set_visible(0)
+                                #pygame.mouse.set_visible(0)
 
                 def degreesToRadians(self, degrees):
                         return degrees * (math.pi / 180)
@@ -79,10 +79,7 @@ class Entity():
 
                 def startGame(self):
                     while 1:
-                        bkgr = pygame.image.load('bkgr.jpg')
-                        bkgrRect = bkgr.get_rect()
-                        self.playArea.blit(bkgr,bkgrRect)
-
+                        self.drawBackground(True,'bkgr.jpg')
                         for event in pygame.event.get():
                             if event.type == QUIT:
                                 pygame.quit()
@@ -90,13 +87,17 @@ class Entity():
                             elif event.type == pygame.MOUSEBUTTONDOWN:
                                 b1,b2,b3= pygame.mouse.get_pressed()
                                 if (b1 == True):
-                                    #countdown to game start
-                                    self.main()
+                                   self.main()
 
                         pygame.display.update()
 
-
-                        
+                def drawBackground(self,isImage,filename):
+                    if (isImage == True):
+                        bkgr = pygame.image.load(filename)
+                        bkgrRect = bkgr.get_rect()
+                        self.playArea.blit(bkgr,bkgrRect)
+                    else:
+                        self.playArea.fill(self.color)
 
                 def endGame(self):
                     self.allEnemy.remove(self.allEnemy.sprites())
@@ -104,28 +105,34 @@ class Entity():
                     pygame.mouse.set_visible(1)
 
                     while 1:
-                        end = pygame.image.load('end.jpg')
-                        endRect = end.get_rect()
-                        self.playArea.blit(end,endRect)
-                        #output score here!
+                        self.drawBackground(True,'end.jpg')
+                        self.outSeconds = "SCORE {0}".format(self.seconds)
+                        self.outputText(None,30,self.outSeconds,1,(10,10,10),350,300)
                         
                         for event in pygame.event.get():
                             if event.type == QUIT:
                                 pygame.quit()
                                 sys.exit()
                             elif event.type == pygame.MOUSEBUTTONDOWN:
-                                b1,b2,b3= pygame.mouse.get_pressed()
-                                if (b1 == True):
+                                if event.button == 1:
                                     self.startGame()
                         pygame.display.update()
 
-              
+
+                def outputText(self,fontType,fontSize,textString,AA,fontColor,xCord,yCord):
+                    pygame.font.init() 
+                    font = pygame.font.Font(fontType,fontSize)
+                    output = font.render(str(textString),AA,(fontColor))
+                    outPos = output.get_rect(centerx=xCord,centery=yCord)
+                    self.playArea.blit(output,outPos)
+
+
                 def main(self):
                                 self.gameInit()
-                    
+                                pygame.mouse.set_visible(0)                    
                                 while 1:
                                                 self.time()
-                                                self.playArea.fill(self.color)
+                                                self.drawBackground(False,None)
                                                 self.player.move(self.mX,self.mY)
                                                 self.allPlayer.update()
                                                 self.allEnemy.update()
@@ -135,10 +142,10 @@ class Entity():
                                                 
                                                 for event in pygame.event.get():
                                                                                 if event.type == QUIT:
-                                                                                                                pygame.quit()
-                                                                                                                sys.exit()
+                                                                                    pygame.quit()
+                                                                                    sys.exit()
                                                                                 elif event.type == MOUSEMOTION:
-                                                                                                                self.mX,self.mY = event.pos
+                                                                                    self.mX,self.mY = event.pos
                                                                                                                 
                                                 pygame.display.update()
                                                 self.fps.tick(60)                               
@@ -201,8 +208,7 @@ class Enemy(pygame.sprite.Sprite):
                         #self.rect.center = self.position
                         
 class Player(pygame.sprite.Sprite):
-
-        
+    
         def __init__(self,location):
                         pygame.sprite.Sprite.__init__(self)
                         self.image = pygame.image.load("sprite.png").convert_alpha()
@@ -213,10 +219,10 @@ class Player(pygame.sprite.Sprite):
 
 
         def update(self):
-                                                                self.rect.center = self.position
+                        self.rect.center = self.position
 
         def move(self,mX,mY):
-                                                                self.position = (mX,mY)                
+                        self.position = (mX,mY)                
                                                                 
 if __name__ == "__main__":
-                                Entity().startGame()
+                        Entity().startGame()
