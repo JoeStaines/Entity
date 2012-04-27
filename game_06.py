@@ -75,6 +75,7 @@ class Entity():
                                 
                                 while self.mainRunning:
                                                 self.time()
+                                                self.levelManager(self.level)
                                                 self.drawBackground(False,None)
                                                 self.player.move(self.mX,self.mY)
                                                 self.allPlayer.update()
@@ -100,6 +101,7 @@ class Entity():
                             self.bVal = False
                             self.oTime = pygame.time.get_ticks()
                             self.seconds = 0
+                            self.level = "1"
                             self.drawAndWait()
                             pygame.mouse.set_visible(0)
 
@@ -122,6 +124,21 @@ class Entity():
                     pygame.display.update()
                     pygame.time.wait(3000)
                                 
+                def levelManager(self, flag):
+                    #if (secs >= 15):
+                    #   lvl = 2
+                    #   add wall enemys
+                    #elif (secs >= 30):
+                    #   lvl = 3
+                    #   add entity enemy
+
+                    if (flag != "2" and self.seconds >= 5):
+                        self.level = "2"
+                        print "LEVEL: {}".format(self.level)
+                        self.wallenemy1 = WallEnemy((self.halfwidth+self.halfwidth/2,-50), 2, 1)
+                        self.allEnemy.add(self.wallenemy1)
+                        self.wallenemy2 = WallEnemy((self.halfwidth-self.halfwidth/2,Entity.wH+50), 2, -1)
+                        self.allEnemy.add(self.wallenemy2)
 
                 def degreesToRadians(self, degrees):
                         return degrees * (math.pi / 180)
@@ -260,7 +277,35 @@ class Enemy(pygame.sprite.Sprite):
                         self.rect = self.rect.move(self.velx, self.vely)
                         #self.rect = self.move(self.vector)
                         #self.rect.center = self.position
-                        
+
+class WallEnemy(pygame.sprite.Sprite):
+
+    def __init__(self, location, speed, direction):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("wallenemy.jpg").convert()
+        self.rect = self.image.get_rect()
+        self.rect.center = location
+        self.speed = speed*direction
+        self.inArea = False
+
+    def checkInArea(self):
+        if ((self.rect.centerx >= 1 and self.rect.centery >= 1) and (self.rect.centerx <= Entity.wW-1 and self.rect.centery <= Entity.wH-1)):
+            self.inArea = True
+
+    def checkEdge(self):
+        if (self.inArea):
+            if (self.rect.centery <= 0):
+                #self.rect.centery = 1
+                self.speed *= -1
+            elif (self.rect.centery >= Entity.wH):
+                #self.rect.centery = Entity.wH-1
+                self.speed *= -1
+
+    def update(self):
+        self.checkInArea()
+        self.checkEdge()
+        self.rect = self.rect.move(0,self.speed)
+
 class Player(pygame.sprite.Sprite):
     
         def __init__(self,location):
