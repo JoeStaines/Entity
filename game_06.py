@@ -8,12 +8,16 @@ class Entity():
                                 
                                 self.color = pygame.Color(50,100,150)
                                 self.fps = pygame.time.Clock()
+                                self.mainRunning = False
+                                self.endRunning = False
+                                
                                 self.setDisplay()
                                 self.addGroup()
 
                 def gameInit(self):
                             self.mX,self.mY = 0,0
                             self.addSprites()
+                            self.mainRunning = True
                             self.bVal = False
                             self.oTime = pygame.time.get_ticks()
                             self.seconds = 0
@@ -58,7 +62,7 @@ class Entity():
                                 
 
                                 for x in range (0,4):
-                                        self.enemy = Enemy((100,100), (self.degreesToRadians(self.randDegrees()), random.randrange(5,15))) 
+                                        self.enemy = Enemy((100,100), (self.degreesToRadians(self.randDegrees()), random.randrange(12,13))) 
                                         self.allEnemy.add(self.enemy)
                                                                 
 
@@ -122,11 +126,12 @@ class Entity():
                         self.playArea.fill(self.color)
 
                 def endGame(self):
+                    self.endRunning = True
                     self.allEnemy.remove(self.allEnemy.sprites())
                     self.allPlayer.remove(self.allPlayer.sprites())
                     pygame.mouse.set_visible(1)
 
-                    while 1:
+                    while self.endRunning:
                         self.drawBackground(True,'end.jpg')
                         self.outSeconds = "SCORE {0}".format(self.seconds)
                         self.outputText(None,30,self.outSeconds,1,(10,10,10),350,300)
@@ -137,7 +142,8 @@ class Entity():
                                 sys.exit()
                             elif event.type == pygame.MOUSEBUTTONDOWN:
                                 if event.button == 1:
-                                    self.startGame()
+                                    self.mainRunning = False
+                                    self.endRunning = False
                         pygame.display.update()
 
 
@@ -151,8 +157,9 @@ class Entity():
 
                 def main(self):
                                 self.gameInit()
-                                pygame.mouse.set_visible(0)                    
-                                while 1:
+                                pygame.mouse.set_visible(0)
+                                
+                                while self.mainRunning:
                                                 self.time()
                                                 self.drawBackground(False,None)
                                                 self.player.move(self.mX,self.mY)
