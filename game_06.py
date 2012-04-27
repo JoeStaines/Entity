@@ -10,10 +10,89 @@ class Entity():
                                 self.fps = pygame.time.Clock()
                                 self.mainRunning = False
                                 self.endRunning = False
+                                self.halfwidth = Entity.wW/2
+                                self.halfheight = Entity.wH/2
                                 
                                 self.setDisplay()
                                 self.addGroup()
 
+                ################# BEGIN initialize Entity class methods ######################
+
+                def setDisplay(self):
+                                self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
+                                self.playArea = pygame.display.get_surface()
+                                pygame.display.set_caption("Entity")
+                                #pygame.mouse.set_visible(0)
+
+                def addGroup(self):
+                                self.mainMenuObj = pygame.sprite.Group()
+                                self.allPlayer = pygame.sprite.Group()
+                                self.allEnemy = pygame.sprite.Group()
+
+                ################ END initialize Entity class methods #######################
+
+                ################ BEGIN main menu methods ####################
+				
+                def startGame(self):
+                    self.addMenuObj()
+                    
+                    while 1:
+                        self.drawBackground(True,'bkgr.jpg')
+                        self.mainMenuObj.draw(self.playArea)
+						
+                        for event in pygame.event.get():
+                            if event.type == QUIT:
+                                pygame.quit()
+                                sys.exit()
+                            elif event.type == pygame.MOUSEBUTTONDOWN:
+                                if event.button == 1:
+                                    if (self.playButton.clicked(event.pos) == 1):
+                                        self.main()
+                                    elif (self.exitButton.clicked(event.pos) == 1):
+                                        pygame.quit()
+                                        sys.exit()
+										
+                        pygame.display.update()
+
+                def addMenuObj(self):
+                    self.playButton = Button("playbutton.jpg")
+                    self.mainMenuObj.add(self.playButton)
+                    
+                    self.exitButton = Button("exitbutton.jpg")
+                    self.mainMenuObj.add(self.exitButton)
+                    
+                    self.playButton.rect.center = (self.halfwidth, self.halfheight)
+                    self.exitButton.rect.center = (self.halfwidth, self.halfheight+100)
+
+                ################# END main menu methods ##################
+
+                ################# BEGIN main game loop methods ####################
+
+                def main(self):
+                                self.gameInit()
+                                pygame.mouse.set_visible(0)
+                                
+                                
+                                while self.mainRunning:
+                                                self.time()
+                                                self.drawBackground(False,None)
+                                                self.player.move(self.mX,self.mY)
+                                                self.allPlayer.update()
+                                                self.allEnemy.update()
+                                                self.checkCollide()
+                                                self.allPlayer.draw(self.playArea)
+                                                self.allEnemy.draw(self.playArea)
+                                                
+                                                for event in pygame.event.get():
+                                                                                if event.type == QUIT:
+                                                                                    pygame.quit()
+                                                                                    sys.exit()
+                                                                                elif event.type == MOUSEMOTION:
+                                                                                    self.mX,self.mY = event.pos
+                                                                                                                
+                                                pygame.display.update()
+                                                self.fps.tick(60)   
+						
                 def gameInit(self):
                             self.mX,self.mY = 0,0
                             self.addSprites()
@@ -21,13 +100,28 @@ class Entity():
                             self.bVal = False
                             self.oTime = pygame.time.get_ticks()
                             self.seconds = 0
+                            self.drawAndWait()
                             pygame.mouse.set_visible(0)
+
+                def addSprites(self):
+                                self.player = Player((self.halfwidth+100,self.halfheight))
+                                self.allPlayer.add(self.player)
                                 
-                def setDisplay(self):
-                                self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
-                                self.playArea = pygame.display.get_surface()
-                                pygame.display.set_caption("Entity")
-                                #pygame.mouse.set_visible(0)
+                                heightpos = self.halfheight-100
+                                for x in range (0,5):
+                                        self.enemy = Enemy((100,heightpos), (self.degreesToRadians(self.randDegrees()), random.randrange(10,13))) 
+                                        self.allEnemy.add(self.enemy)
+                                        heightpos += 50
+
+                                #Enemy((position), (vector))
+
+                def drawAndWait(self):
+                    self.drawBackground(False,None)
+                    self.allPlayer.draw(self.playArea)
+                    self.allEnemy.draw(self.playArea)
+                    pygame.display.update()
+                    pygame.time.wait(3000)
+                                
 
                 def degreesToRadians(self, degrees):
                         return degrees * (math.pi / 180)
@@ -54,76 +148,10 @@ class Entity():
                                 rand = random.randrange(0,359)
                         
                         return rand
-                
-
-                def addSprites(self):
-                                self.player = Player((self.mX,self.mY))
-                                self.allPlayer.add(self.player)
                                 
+                ################## END main game loop methods ######################
 
-                                for x in range (0,4):
-                                        self.enemy = Enemy((100,100), (self.degreesToRadians(self.randDegrees()), random.randrange(12,13))) 
-                                        self.allEnemy.add(self.enemy)
-                                                                
-
-                                #Enemy((position), (vector))
-                                
-
-
-                def addGroup(self):
-                                self.mainMenuObj = pygame.sprite.Group()
-                                self.allPlayer = pygame.sprite.Group()
-                                self.allEnemy = pygame.sprite.Group()
-
-                def time(self):
-                    self.cTime = pygame.time.get_ticks()
-                    if (self.cTime >= self.oTime+1000):
-                        self.oTime = self.cTime
-                        self.seconds += 1
-                        print "SECONDS: ",self.seconds
-
-                def addMenuObj(self):
-                    self.playButton = Button("playbutton.jpg")
-                    self.mainMenuObj.add(self.playButton)
-                    
-                    self.exitButton = Button("exitbutton.jpg")
-                    self.mainMenuObj.add(self.exitButton)
-                    
-                    halfwidth = Entity.wW/2
-                    halfheight = Entity.wH/2
-                    self.playButton.rect.center = (halfwidth, halfheight)
-                    self.exitButton.rect.center = (halfwidth, halfheight+100)
-                                                
-                def startGame(self):
-                    self.addMenuObj()
-                    
-                    while 1:
-                        self.drawBackground(True,'bkgr.jpg')
-                        self.mainMenuObj.draw(self.playArea)
-						
-                        for event in pygame.event.get():
-                            if event.type == QUIT:
-                                pygame.quit()
-                                sys.exit()
-                            elif event.type == pygame.MOUSEBUTTONDOWN:
-                                if event.button == 1:
-                                    #countdown to game start
-                                    #self.main()
-                                    if (self.playButton.clicked(event.pos) == 1):
-                                        self.main()
-                                    elif (self.exitButton.clicked(event.pos) == 1):
-                                        pygame.quit()
-                                        sys.exit()
-										
-                        pygame.display.update()
-
-                def drawBackground(self,isImage,filename):
-                    if (isImage == True):
-                        bkgr = pygame.image.load(filename)
-                        bkgrRect = bkgr.get_rect()
-                        self.playArea.blit(bkgr,bkgrRect)
-                    else:
-                        self.playArea.fill(self.color)
+                ################## BEGIN end screen methods #####################
 
                 def endGame(self):
                     self.endRunning = True
@@ -146,6 +174,26 @@ class Entity():
                                     self.endRunning = False
                         pygame.display.update()
 
+                ################## END end screen methods ###################
+
+                ################## BEGIN misc methods ###################
+
+                def time(self):
+                    self.cTime = pygame.time.get_ticks()
+                    if (self.cTime >= self.oTime+1000):
+                        self.oTime = self.cTime
+                        self.seconds += 1
+                        print "SECONDS: ",self.seconds
+                                                
+
+                def drawBackground(self,isImage,filename):
+                    if (isImage == True):
+                        bkgr = pygame.image.load(filename)
+                        bkgrRect = bkgr.get_rect()
+                        self.playArea.blit(bkgr,bkgrRect)
+                    else:
+                        self.playArea.fill(self.color)
+
 
                 def outputText(self,fontType,fontSize,textString,AA,fontColor,xCord,yCord):
                     pygame.font.init() 
@@ -154,30 +202,7 @@ class Entity():
                     outPos = output.get_rect(centerx=xCord,centery=yCord)
                     self.playArea.blit(output,outPos)
 
-
-                def main(self):
-                                self.gameInit()
-                                pygame.mouse.set_visible(0)
-                                
-                                while self.mainRunning:
-                                                self.time()
-                                                self.drawBackground(False,None)
-                                                self.player.move(self.mX,self.mY)
-                                                self.allPlayer.update()
-                                                self.allEnemy.update()
-                                                self.checkCollide()
-                                                self.allPlayer.draw(self.playArea)
-                                                self.allEnemy.draw(self.playArea)
-                                                
-                                                for event in pygame.event.get():
-                                                                                if event.type == QUIT:
-                                                                                    pygame.quit()
-                                                                                    sys.exit()
-                                                                                elif event.type == MOUSEMOTION:
-                                                                                    self.mX,self.mY = event.pos
-                                                                                                                
-                                                pygame.display.update()
-                                                self.fps.tick(60)                               
+                ################## END misc methods ###################
 
 
 class Enemy(pygame.sprite.Sprite):
@@ -251,7 +276,9 @@ class Player(pygame.sprite.Sprite):
                         self.rect.center = self.position
 
         def move(self,mX,mY):
-                                                                self.position = (mX,mY)                
+                                                                self.position = (mX,mY)
+
+        
 
 class Button(pygame.sprite.Sprite):
 
