@@ -109,9 +109,9 @@ class Entity():
                                 self.player = Player((self.halfwidth+100,self.halfheight))
                                 self.allPlayer.add(self.player)
                                 
-                                heightpos = self.halfheight-100
-                                for x in range (0,5):
-                                        self.enemy = Enemy((100,heightpos), (self.degreesToRadians(self.randDegrees()), random.randrange(10,13))) 
+                                heightpos = self.halfheight-250
+                                for x in range (0,11):
+                                        self.enemy = Enemy((100,heightpos), (self.degreesToRadians(self.randDegrees()), random.randrange(6,8))) 
                                         self.allEnemy.add(self.enemy)
                                         heightpos += 50
 
