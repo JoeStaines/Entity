@@ -135,9 +135,9 @@ class Entity():
                     if (flag != "2" and self.seconds >= 5):
                         self.level = "2"
                         print "LEVEL: {}".format(self.level)
-                        self.wallenemy1 = WallEnemy((self.halfwidth+self.halfwidth/2,-50), 2, 1)
+                        self.wallenemy1 = WallEnemy((self.halfwidth+self.halfwidth/2,-50), 4, 1)
                         self.allEnemy.add(self.wallenemy1)
-                        self.wallenemy2 = WallEnemy((self.halfwidth-self.halfwidth/2,Entity.wH+50), 2, -1)
+                        self.wallenemy2 = WallEnemy((self.halfwidth-self.halfwidth/2,Entity.wH+50), 4, -1)
                         self.allEnemy.add(self.wallenemy2)
 
                 def degreesToRadians(self, degrees):
@@ -200,7 +200,7 @@ class Entity():
                     if (self.cTime >= self.oTime+1000):
                         self.oTime = self.cTime
                         self.seconds += 1
-                        print "SECONDS: ",self.seconds
+                        #print "SECONDS: ",self.seconds
                                                 
 
                 def drawBackground(self,isImage,filename):
@@ -289,7 +289,7 @@ class WallEnemy(pygame.sprite.Sprite):
         self.inArea = False
 
     def checkInArea(self):
-        if ((self.rect.centerx >= 1 and self.rect.centery >= 1) and (self.rect.centerx <= Entity.wW-1 and self.rect.centery <= Entity.wH-1)):
+        if ((self.rect.centerx > 0 and self.rect.centery > 0) and (self.rect.centerx < Entity.wW and self.rect.centery < Entity.wH)):
             self.inArea = True
 
     def checkEdge(self):
