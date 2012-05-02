@@ -103,6 +103,7 @@ class Entity():
                             self.seconds = 0
                             self.level = 1
                             self.drawAndWait()
+                            self.entityRespawnTime = 0
                             pygame.mouse.set_visible(0)
 
                 def addSprites(self):
@@ -133,14 +134,14 @@ class Entity():
                     #   lvl = 3
                     #   add entity enemy
 
-                    if (flag < 2 and self.seconds >= 2):
+                    if (flag < 2 and self.seconds >= 10):
                         self.level = 2
                         print "LEVEL: 2"
                         self.wallenemy1 = WallEnemy((self.halfwidth+self.halfwidth/2,-50), 4, 1)
                         self.allEnemy.add(self.wallenemy1)
                         self.wallenemy2 = WallEnemy((self.halfwidth-self.halfwidth/2,Entity.wH+50), 4, -1)
                         self.allEnemy.add(self.wallenemy2)
-                    elif (flag < 3 and self.seconds >= 4):
+                    elif (flag < 3 and self.seconds >= 20):
                         self.level = 3
                         print "LEVEL 3"
 
@@ -160,7 +161,29 @@ class Entity():
                         
                         self.theEntity = EntityEnemy((xpos, ypos))
                         self.allEnemy.add(self.theEntity)
+                    elif (flag == 3):
+                        self.entityRespawnTime += 1
+                        if (self.entityRespawnTime >= (10*60)):
+                            self.addEntity()
+                            self.entityRespawnTime = 0
                           
+                def addEntity(self):
+                        randNum = random.randrange(0,2)
+                        print randNum
+                        if (randNum == 0):
+                            ypos = "top"
+                        else:
+                            ypos = "bottom"
+
+                        randNum = random.randrange(0,2)
+                        print randNum
+                        if (randNum == 0):
+                            xpos = "left"
+                        else:
+                            xpos = "right"
+                        
+                        self.theEntity = EntityEnemy((xpos, ypos))
+                        self.allEnemy.add(self.theEntity)
                         
                 def degreesToRadians(self, degrees):
                         return degrees * (math.pi / 180)
@@ -336,6 +359,7 @@ class EntityEnemy(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.speed = 4
         self.getLocation(posFlags)
+        self.inArea = False
         #self.addEnemy()
         #self.addBullet()
 
@@ -343,9 +367,9 @@ class EntityEnemy(pygame.sprite.Sprite):
 
     def getLocation(self, posFlags):
         if (posFlags[0] == "left"):
-            self.rect.centerx = 10
+            self.rect.centerx = -50
         else:
-            self.rect.centerx = Entity.wW - 10
+            self.rect.centerx = Entity.wW + 50
             self.speed *= -1 #reverse direction
             
         if (posFlags[1] == "top"):
@@ -359,6 +383,15 @@ class EntityEnemy(pygame.sprite.Sprite):
         self.enemy = Enemy(entitypos, (0.4, random.randrange(6,8)))
         EntityGame.allEnemy.add(self.enemy)
 
+    def checkInArea(self):
+        if ((self.rect.centerx > 0 and self.rect.centery > 0) and (self.rect.centerx < Entity.wW and self.rect.centery < Entity.wH)):
+            self.inArea = True
+        else:
+            self.inArea = False
+
+        if ((self.rect.centerx < -100 or self.rect.centerx > Entity.wW + 100)):
+            EntityGame.allEnemy.remove(self)
+
     def addBullet(self):
         #for event in pygame.event.get():
         #    if event.type == MOUSEMOTION:
@@ -371,9 +404,13 @@ class EntityEnemy(pygame.sprite.Sprite):
         EntityGame.allEnemy.add(self.bullet)
 
     def update(self):
-        if self.counter < 100:
-            self.addBullet()
+        self.checkInArea()
+        
+        if (self.inArea):
             self.counter += 1
+            if self.counter >= 20:
+                self.addBullet()
+                self.counter = 0
             
         self.rect = self.rect.move(self.speed, 0)
 
