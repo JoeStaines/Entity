@@ -6,7 +6,7 @@ class Entity():
                 wW,wH = 800,600
                 def __init__(self):
                                 
-                                self.color = pygame.Color(50,100,150)
+                                self.color = pygame.Color(255,255,255)
                                 self.fps = pygame.time.Clock()
                                 self.mainRunning = False
                                 self.endRunning = False
@@ -37,7 +37,9 @@ class Entity():
                     self.addMenuObj()
                     
                     while 1:
-                        self.drawBackground(True,'bkgr.jpg')
+                        self.drawBackground(True,'mainmenu.jpg')
+                        
+                        
                         self.mainMenuObj.draw(self.playArea)
 						
                         for event in pygame.event.get():
@@ -53,6 +55,7 @@ class Entity():
                                         sys.exit()
 										
                         pygame.display.update()
+                    
 
                 def addMenuObj(self):
                     self.playButton = Button("playbutton.jpg")
@@ -68,19 +71,19 @@ class Entity():
 
                 ################# BEGIN main game loop methods ####################
 
+                
                 def main(self):
                                 self.gameInit()
                                 pygame.mouse.set_visible(0)
                                 
-                                
-                                while self.mainRunning:
+                                while self.mainRunning:                                                
                                                 self.time()
                                                 self.levelManager(self.level)
                                                 self.drawBackground(False,None)
                                                 self.player.move(self.mX,self.mY)
                                                 self.allPlayer.update()
                                                 self.allEnemy.update()
-                                                self.checkCollide()
+                                                self.checkCollide()                                                
                                                 self.allPlayer.draw(self.playArea)
                                                 self.allEnemy.draw(self.playArea)
                                                 
@@ -111,9 +114,14 @@ class Entity():
                                 self.allPlayer.add(self.player)
                                 
                                 heightpos = self.halfheight-250
+<<<<<<< HEAD
+                                for x in range (0,11):
+                                        self.enemy = Enemy((100,heightpos), (self.degreesToRadians(self.randDegrees()), random.randrange(6,8))) 
+=======
                                 print self.degreesToRadians(90)
                                 for x in range (0,11):
                                         self.enemy = Enemy((100,heightpos), (self.degreesToRadians(self.randDegrees()), random.randrange(6,8)))
+>>>>>>> upstream/master
                                         self.allEnemy.add(self.enemy)
                                         heightpos += 50
 
@@ -124,7 +132,7 @@ class Entity():
                     self.allPlayer.draw(self.playArea)
                     self.allEnemy.draw(self.playArea)
                     pygame.display.update()
-                    pygame.time.wait(3000)
+                    pygame.time.wait(1000)
                                 
                 def levelManager(self, flag):
                     #if (secs >= 15):
@@ -134,10 +142,17 @@ class Entity():
                     #   lvl = 3
                     #   add entity enemy
 
+<<<<<<< HEAD
+                    if (flag != "2" and self.seconds >= 5):
+                        self.level = "2"
+                        #print "LEVEL: {}".format(self.level)
+                        self.wallenemy1 = WallEnemy((self.halfwidth+self.halfwidth/2,-50), 2, 1)
+=======
                     if (flag < 2 and self.seconds >= 10):
                         self.level = 2
                         print "LEVEL: 2"
                         self.wallenemy1 = WallEnemy((self.halfwidth+self.halfwidth/2,-50), 4, 1)
+>>>>>>> upstream/master
                         self.allEnemy.add(self.wallenemy1)
                         self.wallenemy2 = WallEnemy((self.halfwidth-self.halfwidth/2,Entity.wH+50), 4, -1)
                         self.allEnemy.add(self.wallenemy2)
@@ -193,9 +208,15 @@ class Entity():
                                 self.bVal = pygame.sprite.spritecollideany(self.player,self.allEnemy)
                                 if(self.bVal != None):
                                                     self.player.health -= 1
+
+                                                    
                                                     #print "Collision Detected, Health: ",self.player.health
+                                
                                 if(self.player.health <= 0):
                                     self.endGame()
+
+
+                               
 
                                                 
                 def randDegrees(self):
@@ -210,6 +231,9 @@ class Entity():
                                 rand = random.randrange(0,359)
                         
                         return rand
+
+                
+                    
                                 
                 ################## END main game loop methods ######################
 
@@ -220,11 +244,13 @@ class Entity():
                     self.allEnemy.remove(self.allEnemy.sprites())
                     self.allPlayer.remove(self.allPlayer.sprites())
                     pygame.mouse.set_visible(1)
-
+                    self.checkPlayerPerformance()                    
+                    
                     while self.endRunning:
                         self.drawBackground(True,'end.jpg')
                         self.outSeconds = "SCORE {0}".format(self.seconds)
                         self.outputText(None,30,self.outSeconds,1,(10,10,10),350,300)
+                        self.outputText(None,30,self.msgS,1,(10,10,10),350,350)
                         
                         for event in pygame.event.get():
                             if event.type == QUIT:
@@ -263,6 +289,17 @@ class Entity():
                     output = font.render(str(textString),AA,(fontColor))
                     outPos = output.get_rect(centerx=xCord,centery=yCord)
                     self.playArea.blit(output,outPos)
+                    
+
+                def checkPlayerPerformance(self):
+                    self.msgArray = [(8,'Dreadful'),(16,"Okay"),(32,'Good'),(64,'Excellent')]
+                    for i in range(0,len(self.msgArray)):
+                        self.msgI,self.msgS = self.msgArray[i]
+                        if(self.seconds < self.msgI):
+                            break;
+                        else:
+                            self.msgS = 'Heroic'
+
 
                 ################## END misc methods ###################
 
@@ -274,16 +311,16 @@ class Enemy(pygame.sprite.Sprite):
                         vector :: (int, int) - angle and speed
                         """
                         pygame.sprite.Sprite.__init__(self)
-                        self.image = pygame.image.load("enemy.png")
+                        self.image = pygame.image.load("sprite2.png").convert_alpha()
                         self.rect = self.image.get_rect()
-                        
                         self.vector = vector
                         self.velx = 0
                         self.vely = 0
-                        
                         self.position = location
                         self.rect.center = location
                         self.dir = 1
+                        self.counter = 0
+                        #self.givenAngleForRotation = 20
                         
                         self.calcAngle(self.vector)
 
@@ -315,13 +352,29 @@ class Enemy(pygame.sprite.Sprite):
                 
                 def update(self):
                         self.checkEdge()
-
                         #print self.vely, self.rect.top
 
-
+                        #enemy "animation" code
+                        self.counter+=1
+                        if (self.counter >= 2):
+                            self.image = self.animateEnemy(self.image,45)
+                            #self.image,self.rect = self.animateEnemy('enemy_.png',15)
+                            self.counter = 0
+                        #end enemy animation code - timer not necessary as it will go at fps rate, added for slower animation
+                            
                         self.rect = self.rect.move(self.velx, self.vely)
                         #self.rect = self.move(self.vector)
                         #self.rect.center = self.position
+
+
+                def animateEnemy(self,imageToRotate,angleToRotateBy):
+                    self.rImage = pygame.transform.rotate(imageToRotate,angleToRotateBy)
+                    self.oRect = imageToRotate.get_rect()
+                    self.rRect = self.oRect.copy()
+                    self.rRect.center = self.rImage.get_rect().center
+                    self.rImage = self.rImage.subsurface(self.rRect).copy()
+                    return self.rImage
+
 
 class WallEnemy(pygame.sprite.Sprite):
 
@@ -351,6 +404,8 @@ class WallEnemy(pygame.sprite.Sprite):
         self.checkEdge()
         self.rect = self.rect.move(0,self.speed)
 
+<<<<<<< HEAD
+=======
 class EntityEnemy(pygame.sprite.Sprite):
 
     def __init__(self, posFlags):
@@ -450,21 +505,38 @@ class Bullet(pygame.sprite.Sprite):
 
     def update(self):
         self.rect = self.rect.move(self.velx, self.vely)
+>>>>>>> upstream/master
 
 class Player(pygame.sprite.Sprite):
     
         def __init__(self,location):
                         pygame.sprite.Sprite.__init__(self)
-                        self.image = pygame.image.load("sprite.png").convert_alpha()
+                        self.image = pygame.image.load('enemy_.png').convert_alpha()
                         self.rect = self.image.get_rect()
                         self.rect.center = location
                         self.position = location
-                        self.health = 5
+                        self.health = 25
+                        self.aniImages = []
+                        self.noOfFrames = 10
+                        self.rotateBy = 360/self.noOfFrames
+                        self.x = 0
+                        #self.oAniImages = pygame.image.load('1.png').
+                        
+                    
+                        for i in range(0,self.noOfFrames):
+                            self.aniImages.append(pygame.transform.rotate(self.image,self.rotateBy))
+                            self.rotateBy += self.rotateBy
+                        for i in range(0,10):
+                            print self.aniImages[i]
 
+                        
+    
 
         def update(self):
                         self.rect.center = self.position
-
+                        self.image = self.aniImages[self.x]
+                        self.x = (self.x + 1) % 10
+                        
         def move(self,mX,mY):
                                                                 self.position = (mX,mY)
 
