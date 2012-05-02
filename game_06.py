@@ -6,22 +6,39 @@ class Entity():
                 wW,wH = 800,600
                 def __init__(self):
                                 
-                                self.color = pygame.Color(255,255,255)
+                                self.color = pygame.Color(200,225,255)
                                 self.fps = pygame.time.Clock()
                                 self.mainRunning = False
                                 self.endRunning = False
                                 self.halfwidth = Entity.wW/2
                                 self.halfheight = Entity.wH/2
                                 
+                                
+                                
+                                self.externalFile()
                                 self.setDisplay()
                                 self.addGroup()
 
                 ################# BEGIN initialize Entity class methods ######################
 
+                def externalFile(self):
+                                self.defaultScoreValue = 'No score available'
+                                self.fixLoop = True
+                                try:
+                                    self.scoreFile = open('score.dat','r')
+                                    self.scoreFile.close()
+                                    
+                                except IOError as e:
+                                    self.scoreFile = open('score.dat','w')
+                                    self.scoreFile.write(self.defaultScoreValue)
+                                    self.scoreFile.close()
+                    
+
                 def setDisplay(self):
                                 self.window = pygame.display.set_mode((Entity.wW,Entity.wH),0,32)
                                 self.playArea = pygame.display.get_surface()
                                 pygame.display.set_caption("Entity")
+                                self.pixels = 0
                                 #pygame.mouse.set_visible(0)
 
                 def addGroup(self):
@@ -32,16 +49,26 @@ class Entity():
                 ################ END initialize Entity class methods #######################
 
                 ################ BEGIN main menu methods ####################
-				
-                def startGame(self):
+                                
+                def startGame(self):               
+                    
                     self.addMenuObj()
+
+                    
                     
                     while 1:
+
+                        while (self.fixLoop == True):
+                            self.readFile()
+                            self.fixLoop = False
+                        
                         self.drawBackground(True,'mainmenu.jpg')
                         
-                        
+                        self.highscoreOutput = "The current highscore is {0} points".format(self.highscore)
+                        self.outputText(None,120,"E  N  T  I  T  Y",1,(150,210,200),self.halfwidth,100)                     
+                        self.outputText(None,32,self.highscoreOutput,1,(190,190,190),self.halfwidth,200)                        
                         self.mainMenuObj.draw(self.playArea)
-						
+                                                
                         for event in pygame.event.get():
                             if event.type == QUIT:
                                 pygame.quit()
@@ -53,7 +80,7 @@ class Entity():
                                     elif (self.exitButton.clicked(event.pos) == 1):
                                         pygame.quit()
                                         sys.exit()
-										
+                                                                                
                         pygame.display.update()
                     
 
@@ -65,7 +92,7 @@ class Entity():
                     self.mainMenuObj.add(self.exitButton)
                     
                     self.playButton.rect.center = (self.halfwidth, self.halfheight)
-                    self.exitButton.rect.center = (self.halfwidth, self.halfheight+100)
+                    self.exitButton.rect.center = (self.halfwidth, self.halfheight+75)
 
                 ################# END main menu methods ##################
 
@@ -73,6 +100,7 @@ class Entity():
 
                 
                 def main(self):
+                                
                                 self.gameInit()
                                 pygame.mouse.set_visible(0)
                                 
@@ -96,7 +124,7 @@ class Entity():
                                                                                                                 
                                                 pygame.display.update()
                                                 self.fps.tick(60)   
-						
+                                                
                 def gameInit(self):
                             self.mX,self.mY = 0,0
                             self.addSprites()
@@ -104,9 +132,8 @@ class Entity():
                             self.bVal = False
                             self.oTime = pygame.time.get_ticks()
                             self.seconds = 0
-                            self.level = 1
+                            self.level = "1"
                             self.drawAndWait()
-                            self.entityRespawnTime = 0
                             pygame.mouse.set_visible(0)
 
                 def addSprites(self):
@@ -114,14 +141,8 @@ class Entity():
                                 self.allPlayer.add(self.player)
                                 
                                 heightpos = self.halfheight-250
-<<<<<<< HEAD
                                 for x in range (0,11):
                                         self.enemy = Enemy((100,heightpos), (self.degreesToRadians(self.randDegrees()), random.randrange(6,8))) 
-=======
-                                print self.degreesToRadians(90)
-                                for x in range (0,11):
-                                        self.enemy = Enemy((100,heightpos), (self.degreesToRadians(self.randDegrees()), random.randrange(6,8)))
->>>>>>> upstream/master
                                         self.allEnemy.add(self.enemy)
                                         heightpos += 50
 
@@ -142,64 +163,14 @@ class Entity():
                     #   lvl = 3
                     #   add entity enemy
 
-<<<<<<< HEAD
                     if (flag != "2" and self.seconds >= 5):
                         self.level = "2"
                         #print "LEVEL: {}".format(self.level)
                         self.wallenemy1 = WallEnemy((self.halfwidth+self.halfwidth/2,-50), 2, 1)
-=======
-                    if (flag < 2 and self.seconds >= 10):
-                        self.level = 2
-                        print "LEVEL: 2"
-                        self.wallenemy1 = WallEnemy((self.halfwidth+self.halfwidth/2,-50), 4, 1)
->>>>>>> upstream/master
                         self.allEnemy.add(self.wallenemy1)
-                        self.wallenemy2 = WallEnemy((self.halfwidth-self.halfwidth/2,Entity.wH+50), 4, -1)
+                        self.wallenemy2 = WallEnemy((self.halfwidth-self.halfwidth/2,Entity.wH+50), 2, -1)
                         self.allEnemy.add(self.wallenemy2)
-                    elif (flag < 3 and self.seconds >= 20):
-                        self.level = 3
-                        print "LEVEL 3"
 
-                        randNum = random.randrange(0,2)
-                        print randNum
-                        if (randNum == 0):
-                            ypos = "top"
-                        else:
-                            ypos = "bottom"
-
-                        randNum = random.randrange(0,2)
-                        print randNum
-                        if (randNum == 0):
-                            xpos = "left"
-                        else:
-                            xpos = "right"
-                        
-                        self.theEntity = EntityEnemy((xpos, ypos))
-                        self.allEnemy.add(self.theEntity)
-                    elif (flag == 3):
-                        self.entityRespawnTime += 1
-                        if (self.entityRespawnTime >= (10*60)):
-                            self.addEntity()
-                            self.entityRespawnTime = 0
-                          
-                def addEntity(self):
-                        randNum = random.randrange(0,2)
-                        print randNum
-                        if (randNum == 0):
-                            ypos = "top"
-                        else:
-                            ypos = "bottom"
-
-                        randNum = random.randrange(0,2)
-                        print randNum
-                        if (randNum == 0):
-                            xpos = "left"
-                        else:
-                            xpos = "right"
-                        
-                        self.theEntity = EntityEnemy((xpos, ypos))
-                        self.allEnemy.add(self.theEntity)
-                        
                 def degreesToRadians(self, degrees):
                         return degrees * (math.pi / 180)
 
@@ -241,16 +212,27 @@ class Entity():
 
                 def endGame(self):
                     self.endRunning = True
+                    
+                    self.fixLoop = True
+                    
                     self.allEnemy.remove(self.allEnemy.sprites())
                     self.allPlayer.remove(self.allPlayer.sprites())
                     pygame.mouse.set_visible(1)
-                    self.checkPlayerPerformance()                    
-                    
+                    self.checkPlayerPerformance()
+
+                    if(self.highscore == self.defaultScoreValue):
+                        self.highscore = self.seconds
+                        self.writeFile()
+
+                    elif (int(self.highscore) < self.seconds):
+                        self.writeFile()                     
+
                     while self.endRunning:
-                        self.drawBackground(True,'end.jpg')
-                        self.outSeconds = "SCORE {0}".format(self.seconds)
-                        self.outputText(None,30,self.outSeconds,1,(10,10,10),350,300)
-                        self.outputText(None,30,self.msgS,1,(10,10,10),350,350)
+                        self.drawBackground(True,'mainmenu.jpg')
+                        #self.drawBackground(True,'end.jpg')
+                        self.outSeconds = "Your Score is {0}".format(self.seconds)
+                        self.outputText(None,74,self.outSeconds,1,(100,120,180),200,150)
+                        self.outputText(None,36,self.msgS,1,(150,150,150),300,200)
                         
                         for event in pygame.event.get():
                             if event.type == QUIT:
@@ -292,13 +274,23 @@ class Entity():
                     
 
                 def checkPlayerPerformance(self):
-                    self.msgArray = [(8,'Dreadful'),(16,"Okay"),(32,'Good'),(64,'Excellent')]
+                    self.msgArray = [(8,'Absolutely dreadful'),(16,"Okay, but you need more practice"),(32,"Good, you're getting there!"),(64,'Excellent')]
                     for i in range(0,len(self.msgArray)):
                         self.msgI,self.msgS = self.msgArray[i]
                         if(self.seconds < self.msgI):
                             break;
                         else:
-                            self.msgS = 'Heroic'
+                            self.msgS = 'Heroic mode enabled'
+
+                def writeFile(self):
+                        self.scoreFile = open('score.dat','w')
+                        self.scoreFile.write(str(self.seconds))
+                        self.scoreFile.close()
+
+                def readFile(self):
+                        self.scoreFile = open('score.dat','r')
+                        self.highscore = self.scoreFile.read()
+                        self.scoreFile.close()
 
 
                 ################## END misc methods ###################
@@ -309,9 +301,9 @@ class Enemy(pygame.sprite.Sprite):
                         """
                         location :: (int, int) - location to be placed in px
                         vector :: (int, int) - angle and speed
-                        """
-                        pygame.sprite.Sprite.__init__(self)
-                        self.image = pygame.image.load("sprite2.png").convert_alpha()
+                        """                        
+                        pygame.sprite.Sprite.__init__(self)                        
+                        self.image = pygame.image.load("player.png").convert_alpha()
                         self.rect = self.image.get_rect()
                         self.vector = vector
                         self.velx = 0
@@ -321,6 +313,7 @@ class Enemy(pygame.sprite.Sprite):
                         self.dir = 1
                         self.counter = 0
                         #self.givenAngleForRotation = 20
+                        
                         
                         self.calcAngle(self.vector)
 
@@ -353,15 +346,17 @@ class Enemy(pygame.sprite.Sprite):
                 def update(self):
                         self.checkEdge()
                         #print self.vely, self.rect.top
+                        
 
                         #enemy "animation" code
                         self.counter+=1
+                        """
                         if (self.counter >= 2):
                             self.image = self.animateEnemy(self.image,45)
                             #self.image,self.rect = self.animateEnemy('enemy_.png',15)
                             self.counter = 0
                         #end enemy animation code - timer not necessary as it will go at fps rate, added for slower animation
-                            
+                        """
                         self.rect = self.rect.move(self.velx, self.vely)
                         #self.rect = self.move(self.vector)
                         #self.rect.center = self.position
@@ -374,6 +369,7 @@ class Enemy(pygame.sprite.Sprite):
                     self.rRect.center = self.rImage.get_rect().center
                     self.rImage = self.rImage.subsurface(self.rRect).copy()
                     return self.rImage
+                   
 
 
 class WallEnemy(pygame.sprite.Sprite):
@@ -387,7 +383,7 @@ class WallEnemy(pygame.sprite.Sprite):
         self.inArea = False
 
     def checkInArea(self):
-        if ((self.rect.centerx > 0 and self.rect.centery > 0) and (self.rect.centerx < Entity.wW and self.rect.centery < Entity.wH)):
+        if ((self.rect.centerx >= 1 and self.rect.centery >= 1) and (self.rect.centerx <= Entity.wW-1 and self.rect.centery <= Entity.wH-1)):
             self.inArea = True
 
     def checkEdge(self):
@@ -404,138 +400,36 @@ class WallEnemy(pygame.sprite.Sprite):
         self.checkEdge()
         self.rect = self.rect.move(0,self.speed)
 
-<<<<<<< HEAD
-=======
-class EntityEnemy(pygame.sprite.Sprite):
-
-    def __init__(self, posFlags):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("theentity.png").convert_alpha()
-        self.rect = self.image.get_rect()
-        self.speed = 4
-        self.getLocation(posFlags)
-        self.inArea = False
-        #self.addEnemy()
-        #self.addBullet()
-
-        self.counter = 0
-
-    def getLocation(self, posFlags):
-        if (posFlags[0] == "left"):
-            self.rect.centerx = -50
-        else:
-            self.rect.centerx = Entity.wW + 50
-            self.speed *= -1 #reverse direction
-            
-        if (posFlags[1] == "top"):
-            self.rect.centery = 50
-        else:
-            self.rect.centery = Entity.wH - 50
-
-    def addEnemy(self):
-        entitypos = self.rect.center
-
-        self.enemy = Enemy(entitypos, (0.4, random.randrange(6,8)))
-        EntityGame.allEnemy.add(self.enemy)
-
-    def checkInArea(self):
-        if ((self.rect.centerx > 0 and self.rect.centery > 0) and (self.rect.centerx < Entity.wW and self.rect.centery < Entity.wH)):
-            self.inArea = True
-        else:
-            self.inArea = False
-
-        if ((self.rect.centerx < -100 or self.rect.centerx > Entity.wW + 100)):
-            EntityGame.allEnemy.remove(self)
-
-    def addBullet(self):
-        #for event in pygame.event.get():
-        #    if event.type == MOUSEMOTION:
-        #        mousepos = event.pos
-
-        playerpos = EntityGame.player.rect.center
-        entitypos = self.rect.center
-
-        self.bullet = Bullet(playerpos, entitypos)
-        EntityGame.allEnemy.add(self.bullet)
-
-    def update(self):
-        self.checkInArea()
-        
-        if (self.inArea):
-            self.counter += 1
-            if self.counter >= 20:
-                self.addBullet()
-                self.counter = 0
-            
-        self.rect = self.rect.move(self.speed, 0)
-
-class Bullet(pygame.sprite.Sprite):
-
-    def __init__(self, playerPos, entityPos):
-        pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load("bullet.jpg").convert()
-        self.rect = self.image.get_rect()
-        self.rect.center = entityPos
-        self.speed = 10
-        self.velx = 0
-        self.vely = 0
-        self.pointAtPlayer(playerPos, entityPos)
-
-    def myRound(self, dVal):
-        frac,whole = math.modf(dVal)
-        if(frac>=0.5):
-                whole+=1
-        return whole
-
-    def radiansToDegrees(self, radians):
-        return radians * (180 / math.pi)
-
-    def pointAtPlayer(self, playerPos, entityPos):
-        pX = playerPos[0]
-        pY = playerPos[1]
-        eX = entityPos[0]
-        eY = entityPos[1]
-
-        deltax = pX - eX
-        deltay = pY - eY
-        angle = math.atan2(deltay, deltax)
-        #print self.radiansToDegrees(angle)
-        
-        (self.velx, self.vely) = (self.myRound(math.cos(angle)*self.speed), self.myRound(math.sin(angle)*self.speed))
-
-    def update(self):
-        self.rect = self.rect.move(self.velx, self.vely)
->>>>>>> upstream/master
 
 class Player(pygame.sprite.Sprite):
     
         def __init__(self,location):
                         pygame.sprite.Sprite.__init__(self)
-                        self.image = pygame.image.load('enemy_.png').convert_alpha()
+                        self.image = pygame.image.load('sprite.png').convert_alpha()
                         self.rect = self.image.get_rect()
                         self.rect.center = location
                         self.position = location
                         self.health = 25
-                        self.aniImages = []
-                        self.noOfFrames = 10
-                        self.rotateBy = 360/self.noOfFrames
-                        self.x = 0
+                        #self.aniImages = []
+                        #self.noOfFrames = 10
+                        #self.rotateBy = 360/self.noOfFrames
+                        #self.x = 0
                         #self.oAniImages = pygame.image.load('1.png').
                         
                     
-                        for i in range(0,self.noOfFrames):
-                            self.aniImages.append(pygame.transform.rotate(self.image,self.rotateBy))
-                            self.rotateBy += self.rotateBy
-                        for i in range(0,10):
-                            print self.aniImages[i]
+                        #for i in range(0,self.noOfFrames):
+                            #self.aniImages.append(pygame.transform.rotate(self.image,self.rotateBy))
+                            #self.rotateBy += self.rotateBy
+                        #for i in range(0,10):
+                            #print self.aniImages[i]
 
                         
     
 
         def update(self):
                         self.rect.center = self.position
-                        self.image = self.aniImages[self.x]
-                        self.x = (self.x + 1) % 10
+                        #self.image = self.aniImages[self.x]
+                        #self.x = (self.x + 1) % 10
                         
         def move(self,mX,mY):
                                                                 self.position = (mX,mY)
@@ -554,5 +448,4 @@ class Button(pygame.sprite.Sprite):
             return 1              
                                                                 
 if __name__ == "__main__":
-                        EntityGame = Entity()
-                        EntityGame.startGame()
+                        Entity().startGame()
